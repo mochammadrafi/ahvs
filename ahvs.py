@@ -22,9 +22,8 @@ class Tool:
 
     # Function: Nuclei
     def nuclei(self):
-        command = subprocess.Popen(f"nuclei -l results/lives.txt -silent -severity low",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        output = command.communicate()[0].decode('UTF-8')
-        return output
+        command = subprocess.Popen(f"nuclei -l results/lives.txt -silent -nc -nts -severity critical,medium,high,low -o results/vulnerability.txt",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        return command
 
     # Function: Telegram Notification
     def notification(self, textMessage = ""):
@@ -43,9 +42,11 @@ def main():
     scanSubdomainLive = tools.httpx()
     tools.writeFile('results/lives.txt', scanSubdomainLive)
     scanVulnerability = tools.nuclei()
-    if scanVulnerability:
-        sendNotification = tools.notification(scanVulnerability)
-    else:
+    while scanVulnerability.poll() is None:
+        line = scanVulnerability.stdout.readline()
+        tools.notification(line)
+    
+    if scanSubdomainLive is None:
         sendNotification = tools.notification("Not found vuln!")
 
 if __name__ == "__main__":
