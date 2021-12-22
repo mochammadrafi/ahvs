@@ -41,6 +41,8 @@ def main():
     tools.writeFile('results/domains.txt', scanSubdomain)
     scanSubdomainLive = tools.httpx()
     tools.writeFile('results/lives.txt', scanSubdomainLive)
+    tools.noticiation("List subdomain found:\n" + scanSubdomain)
+    tools.noticiation("List subdomain live found:\n" + scanSubdomainLive)
     scanVulnerability = tools.nuclei()
     while scanVulnerability.poll() is None:
         line = scanVulnerability.stdout.readline()
